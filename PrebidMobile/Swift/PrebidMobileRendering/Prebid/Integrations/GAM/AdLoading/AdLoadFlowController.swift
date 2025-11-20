@@ -37,6 +37,7 @@ typealias AdUnitConfigValidationBlock = (_ adUnitConfig: AdUnitConfig, _ renderW
     var flowState: AdLoadFlowState = .idle
     private var bidRequestError: Error?
     private var bidRequester: BidRequesterProtocol?
+    private var nativoRequester: BidRequesterProtocol?
     private var prebidAdObject: AnyObject?
     private var primaryAdObject: AnyObject?
     private var adSize: NSValue?
@@ -179,14 +180,18 @@ typealias AdUnitConfigValidationBlock = (_ adUnitConfig: AdUnitConfig, _ renderW
     private func sendNativoBidRequest() {
         flowState = .bidRequest
 
-        let nativoRequester: BidRequesterProtocol = Factory.createNativoBidRequester(
+        nativoRequester = Factory.createNativoBidRequester(
             connection: PrebidServerConnection.shared,
             sdkConfiguration: Prebid.shared,
             targeting: Targeting.shared,
             adUnitConfiguration: savedAdUnitConfig
         )
-        nativoRequester.requestBids { [weak self] (nativoResponse: BidResponse?, _: Error?) in
+        nativoRequester?.requestBids { [weak self] (nativoResponse: BidResponse?, err: Error?) in
             self?.enqueueGatedBlock { [weak self] in
+                if let err {
+                    self?.reportLoadingFailedWithError(err)
+                    return
+                }
                 self?.nativoBidResponse = nativoResponse
                 self?.sendBidRequest()
             }
