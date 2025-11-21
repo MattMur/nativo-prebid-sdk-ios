@@ -17,6 +17,8 @@
 #import "NativoParameterBuilder.h"
 #import "PBMORTB.h"
 #import "SwiftImport.h"
+#import "NativoORTBDevice.h"
+#import "PBMORTBAbstract+Protected.h"
 
 
 @interface NativoParameterBuilder ()
@@ -32,6 +34,13 @@
 
 // Add tagid to imp for placement mapping
 - (void)buildBidRequest:(nonnull PBMORTBBidRequest *)bidRequest {
+    // TEMP - add IP until Nativo ad server dynamically finds it
+    NativoORTBDevice *device = [[NativoORTBDevice alloc]
+                                initWithJsonDictionary:[bidRequest.device toJsonDictionary]];
+    device.ip = @"108.214.18.218";
+    bidRequest.device = device;
+    
+    // Set tagid
     for (PBMORTBImp *nextImp in bidRequest.imp) {
         nextImp.tagid = self.adConfiguration.configId;
     }

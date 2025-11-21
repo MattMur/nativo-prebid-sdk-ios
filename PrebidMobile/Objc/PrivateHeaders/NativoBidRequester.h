@@ -5,10 +5,9 @@
 @class Prebid;
 @class Targeting;
 @protocol PrebidServerConnectionProtocol;
+@protocol PBMBidRequesterProtocol;
 
 NS_ASSUME_NONNULL_BEGIN
-
-@protocol PBMBidRequesterProtocol;
 
 @interface NativoBidRequester : NSObject <PBMBidRequesterProtocol>
 

@@ -193,9 +193,17 @@ typealias AdUnitConfigValidationBlock = (_ adUnitConfig: AdUnitConfig, _ renderW
                     return
                 }
                 self?.nativoBidResponse = nativoResponse
+                if let ntvResp = nativoResponse {
+                    self?.handleNativoResponse(response: ntvResp, error: err)
+                }
                 self?.sendBidRequest()
             }
         }
+    }
+    
+    private func handleNativoResponse(response: BidResponse, error: Error?) {
+        
+    
     }
 
     private func handleBidResponse(response: BidResponse?, error: Error?) {
