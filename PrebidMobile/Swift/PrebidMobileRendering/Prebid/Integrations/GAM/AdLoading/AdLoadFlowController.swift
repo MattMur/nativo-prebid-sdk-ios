@@ -166,17 +166,7 @@ typealias AdUnitConfigValidationBlock = (_ adUnitConfig: AdUnitConfig, _ renderW
         delegate?.adLoadFlowControllerWillSendBidRequest(self)
         sendNativoBidRequest()
     }
-
-    private func sendBidRequest() {
-        flowState = .bidRequest
-        bidRequester = bidRequesterFactory(savedAdUnitConfig)
-        bidRequester?.requestBids { [weak self ] response, error in
-            self?.enqueueGatedBlock { [weak self] in
-                self?.handleBidResponse(response: response, error: error)
-            }
-        }
-    }
-
+    
     private func sendNativoBidRequest() {
         flowState = .bidRequest
 
@@ -193,17 +183,33 @@ typealias AdUnitConfigValidationBlock = (_ adUnitConfig: AdUnitConfig, _ renderW
                     return
                 }
                 self?.nativoBidResponse = nativoResponse
-                if let ntvResp = nativoResponse {
-                    self?.handleNativoResponse(response: ntvResp, error: err)
-                }
-                self?.sendBidRequest()
+                self?.handleNativoResponse(response: nativoResponse, error: err)
             }
         }
     }
     
-    private func handleNativoResponse(response: BidResponse, error: Error?) {
-        
-    
+    private func handleNativoResponse(response: BidResponse?, error: Error?) {
+        let bid = response?.allBids?.first
+        let isOwnedOperated: Bool = bid?.bid.ext?.nativo?.isOwnedOperated ?? false
+        if (isOwnedOperated) {
+            // Render O&O demand
+            self.bidRequestError = error
+            self.bidRequester = nil
+            flowState = .demandReceived
+            enqueueNextStepAttempt()
+        } else {
+            self.sendBidRequest()
+        }
+    }
+
+    private func sendBidRequest() {
+        flowState = .bidRequest
+        bidRequester = bidRequesterFactory(savedAdUnitConfig)
+        bidRequester?.requestBids { [weak self ] response, error in
+            self?.enqueueGatedBlock { [weak self] in
+                self?.handleBidResponse(response: response, error: error)
+            }
+        }
     }
 
     private func handleBidResponse(response: BidResponse?, error: Error?) {
