@@ -24,8 +24,10 @@ import PrebidMobile
  */
 public class NativoPrebidRenderer: NSObject, PrebidMobilePluginRenderer, DisplayViewLoadingDelegate {
 
-    public let name = "NativoRenderer"
-    public let version = "1.0.0"
+    public static let NAME = "NativoRenderer"
+    public static let VERSION = "1.0.0"
+    public let name = NativoPrebidRenderer.NAME
+    public let version = NativoPrebidRenderer.VERSION
     public var data: [String: Any]?
     var bannerLoadingDelegate: DisplayViewLoadingDelegate?
     

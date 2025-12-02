@@ -82,7 +82,7 @@
         }
 
         NSError *transformError = nil;
-        BidResponse * const bidResponse = [PBMBidResponseTransformer transformResponse:serverResponse error:&transformError];
+        NativoBidResponse * const bidResponse = [[NativoBidResponse alloc] initWithJsonDictionary:serverResponse.jsonDict];
         done(bidResponse, transformError);
     }];
 }
