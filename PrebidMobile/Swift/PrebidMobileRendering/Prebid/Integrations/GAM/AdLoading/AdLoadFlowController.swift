@@ -90,13 +90,13 @@ typealias AdUnitConfigValidationBlock = (_ adUnitConfig: AdUnitConfig, _ renderW
                 self?.reportLoadingFailedWithError(error)
                 return
             }
-            self?.loadPrebidDisplayView()
+            self?.loadPrebidDisplayView(bidResponse: self?.bidResponse)
         }
     }
 
     public func adLoaderDidWinPrebid(_ adLoader: AdLoaderProtocol) {
         enqueueGatedBlock { [weak self] in
-            self?.loadPrebidDisplayView()
+            self?.loadPrebidDisplayView(bidResponse: self?.bidResponse)
         }
     }
 
@@ -155,21 +155,9 @@ typealias AdUnitConfigValidationBlock = (_ adUnitConfig: AdUnitConfig, _ renderW
             deployPendingViewAndSendSuccessReport()
         }
     }
-
-    private func tryLaunchingAdRequestFlow() {
-        guard configValidationBlock(savedAdUnitConfig, false) else {
-            let error = PBMError.error(message: "AdUnitConfig is not valid.", type: .internalError)
-            reportLoadingFailedWithError(error)
-            return
-        }
-
-        delegate?.adLoadFlowControllerWillSendBidRequest(self)
-        sendNativoBidRequest()
-    }
     
     private func sendNativoBidRequest() {
         flowState = .bidRequest
-
         nativoRequester = Factory.createNativoBidRequester(
             connection: PrebidServerConnection.shared,
             sdkConfiguration: Prebid.shared,
@@ -182,28 +170,42 @@ typealias AdUnitConfigValidationBlock = (_ adUnitConfig: AdUnitConfig, _ renderW
                     self?.reportLoadingFailedWithError(err)
                     return
                 }
-                self?.nativoBidResponse = nativoResponse
                 self?.handleNativoResponse(response: nativoResponse, error: err)
             }
         }
     }
     
     private func handleNativoResponse(response: BidResponse?, error: Error?) {
-        let bid = response?.allBids?.first
+        self.nativoBidResponse = response
+        let bid = response?.winningBid
+        if let size = bid?.size {
+            self.adSize = NSValue(cgSize: size)
+        }
         let isOwnedOperated: Bool = bid?.bid.ext?.nativo?.isOwnedOperated ?? false
         if (isOwnedOperated) {
             // Render O&O demand
             self.bidRequestError = error
             self.bidRequester = nil
-            flowState = .demandReceived
-            enqueueNextStepAttempt()
+            adLoader?.flowDelegate = self
+            loadPrebidDisplayView(bidResponse: response)
         } else {
-            self.sendBidRequest()
+            sendBidRequest()
         }
+    }
+    
+    private func tryLaunchingAdRequestFlow() {
+        guard configValidationBlock(savedAdUnitConfig, false) else {
+            let error = PBMError.error(message: "AdUnitConfig is not valid.", type: .internalError)
+            reportLoadingFailedWithError(error)
+            return
+        }
+
+        delegate?.adLoadFlowControllerWillSendBidRequest(self)
+//        sendBidRequest()
+        sendNativoBidRequest()
     }
 
     private func sendBidRequest() {
-        flowState = .bidRequest
         bidRequester = bidRequesterFactory(savedAdUnitConfig)
         bidRequester?.requestBids { [weak self ] response, error in
             self?.enqueueGatedBlock { [weak self] in
@@ -230,7 +232,7 @@ typealias AdUnitConfigValidationBlock = (_ adUnitConfig: AdUnitConfig, _ renderW
         }
     }
 
-    private func loadPrebidDisplayView() {
+    private func loadPrebidDisplayView(bidResponse: BidResponse?) {
         if let error = bidRequestError {
             reportLoadingFailedWithError(error)
             bidRequestError = nil
@@ -243,7 +245,7 @@ typealias AdUnitConfigValidationBlock = (_ adUnitConfig: AdUnitConfig, _ renderW
             reportLoadingFailedWithError(error)
             return
         }
-
+        
         guard let bid = bidResponse?.winningBid else {
             reportLoadingFailedWithError(PBMError.noWinningBid())
             return
