@@ -18,6 +18,8 @@
 import Foundation
 
 class ORTBBidExtNativo: PBMJsonCodable {
+    
+    // Special Nativo property to declare if ad should be rendered immediately
     private(set) var isOwnedOperated: Bool?
 
     private enum KeySet: String {

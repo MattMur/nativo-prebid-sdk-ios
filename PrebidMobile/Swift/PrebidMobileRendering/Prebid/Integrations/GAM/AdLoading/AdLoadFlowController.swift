@@ -28,6 +28,7 @@ typealias AdUnitConfigValidationBlock = (_ adUnitConfig: AdUnitConfig, _ renderW
 
     private let bidRequesterFactory: (AdUnitConfig) -> BidRequesterProtocol
     private var adLoader: AdLoaderProtocol?
+    private var bannerEventDelegate: BannerEventLoadingDelegate?
     private weak var delegate: AdLoadFlowControllerDelegate?
     private let configValidationBlock: AdUnitConfigValidationBlock
     private let savedAdUnitConfig: AdUnitConfig
@@ -55,6 +56,13 @@ typealias AdUnitConfigValidationBlock = (_ adUnitConfig: AdUnitConfig, _ renderW
 
         self.bidRequesterFactory = bidRequesterFactory
         self.adLoader = adLoader
+        
+        // Inconvenient logic needed to unwrap the BannerAdLoader, which is the same object as adLoader
+        // Needed so that we can notify of Nativo wins
+        if let bannerDelegate = adLoader as? BannerEventLoadingDelegate {
+            self.bannerEventDelegate = bannerDelegate
+        }
+        
         self.savedAdUnitConfig = adUnitConfig
         self.delegate = delegate
         self.configValidationBlock = configValidationBlock
@@ -97,6 +105,16 @@ typealias AdUnitConfigValidationBlock = (_ adUnitConfig: AdUnitConfig, _ renderW
     public func adLoaderDidWinPrebid(_ adLoader: AdLoaderProtocol) {
         enqueueGatedBlock { [weak self] in
             self?.loadPrebidDisplayView(bidResponse: self?.bidResponse)
+        }
+    }
+    
+    // At the moment this does that same thing as adLoaderDidWinPrebid
+    // but adding it simply to show separate flow from Prebid win
+    // Also bidResponse is different and doesn't contain same meta data
+    public func adLoaderDidWinNativo(_ adLoader: AdLoaderProtocol) {
+        enqueueGatedBlock { [weak self] in
+            let response = self?.nativoBidResponse
+            self?.loadPrebidDisplayView(bidResponse: response)
         }
     }
 
@@ -147,17 +165,24 @@ typealias AdUnitConfigValidationBlock = (_ adUnitConfig: AdUnitConfig, _ renderW
         switch flowState {
         case .idle, .loadingFailed:
             tryLaunchingAdRequestFlow()
+        case .nativoRequest:
+            sendNativoBidRequest()
         case .bidRequest, .primaryAdRequest, .loadingDisplayView:
             return // waiting
         case .demandReceived:
-            requestPrimaryAdServer(bidResponse)
+            adLoader?.flowDelegate = self
+            let hasAdServer = !(adLoader?.primaryAdRequester is BannerEventHandlerStandalone)
+            if hasAdServer {
+                requestPrimaryAdServer(bidResponse)
+            } else {
+                bannerEventDelegate?.prebidDidWin()
+            }
         case .readyToDeploy:
             deployPendingViewAndSendSuccessReport()
         }
     }
     
     private func sendNativoBidRequest() {
-        flowState = .bidRequest
         nativoRequester = Factory.createNativoBidRequester(
             connection: PrebidServerConnection.shared,
             sdkConfiguration: Prebid.shared,
@@ -178,17 +203,18 @@ typealias AdUnitConfigValidationBlock = (_ adUnitConfig: AdUnitConfig, _ renderW
     private func handleNativoResponse(response: BidResponse?, error: Error?) {
         self.nativoBidResponse = response
         let bid = response?.winningBid
-        if let size = bid?.size {
-            self.adSize = NSValue(cgSize: size)
-        }
         let isOwnedOperated: Bool = bid?.bid.ext?.nativo?.isOwnedOperated ?? false
         if (isOwnedOperated) {
-            // Render O&O demand
+            // Render O&O demand via adLoader Nativo flow
+            if let size = bid?.size {
+                self.adSize = NSValue(cgSize: size)
+            }
             self.bidRequestError = error
             self.bidRequester = nil
             adLoader?.flowDelegate = self
-            loadPrebidDisplayView(bidResponse: response)
+            bannerEventDelegate?.nativoDidWin()
         } else {
+            flowState = .bidRequest
             sendBidRequest()
         }
     }
@@ -201,8 +227,9 @@ typealias AdUnitConfigValidationBlock = (_ adUnitConfig: AdUnitConfig, _ renderW
         }
 
         delegate?.adLoadFlowControllerWillSendBidRequest(self)
-//        sendBidRequest()
-        sendNativoBidRequest()
+        
+        self.flowState = .nativoRequest
+        enqueueNextStepAttempt()
     }
 
     private func sendBidRequest() {
