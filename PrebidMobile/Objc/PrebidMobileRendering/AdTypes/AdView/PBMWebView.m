@@ -34,6 +34,9 @@
 
 #import "SwiftImport.h"
 
+// If remote debugging via Safari, delay the html injection until the Safari instance can connect
+#define REMOTE_DEBUGGING 0
+
 #pragma mark - Constants
 
 static NSString * const PBMInternalWebViewAccessibilityIdentifier = @"PBMInternalWebViewAccessibilityIdentifier";
@@ -208,7 +211,19 @@ static NSString * const KeyPathOutputVolume = @"outputVolume";
         PBMLogInfo(@"loadHTMLString");
         self.state = PBMWebViewStateLoading;
         
+#if REMOTE_DEBUGGING
+        // Delay in order to give time to start Safari remote debugging
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(6 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            PBMLogInfo(@"loadHTMLString");
+#endif
         [self.internalWebView loadHTMLString:html baseURL:nil];
+#if REMOTE_DEBUGGING
+        });
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.delegate webViewReadyToDisplay:self];
+        });
+#endif
+
     } onError:^(NSError * _Nullable error) {
         PBMLogError(@"%@", error.localizedDescription);
     }];
@@ -369,7 +384,9 @@ static NSString * const KeyPathOutputVolume = @"outputVolume";
         if ([readyState isEqualToString:@"complete"]) {
             self.state = PBMWebViewStateLoaded;
             self.isPollingForDocumentReady = NO;
+#if REMOTE_DEBUGGING == 0
             [self.delegate webViewReadyToDisplay:self];
+#endif
         } else {
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 100 * NSEC_PER_MSEC), dispatch_get_main_queue(), ^{
                 @strongify(self);

@@ -52,7 +52,6 @@
 
     NSData *rtbRequestData = [requestString dataUsingEncoding:NSUTF8StringEncoding];
 
-    // Timeout behavior mirrors PBMBidRequester_Objc (no dynamic updates here)
     const NSInteger rawTimeoutMS = self.sdkConfiguration.timeoutMillis;
     NSNumber * const dynamicTimeout = self.sdkConfiguration.timeoutMillisDynamic;
     const NSTimeInterval postTimeout = (dynamicTimeout ? dynamicTimeout.doubleValue : (rawTimeoutMS / 1000.0));

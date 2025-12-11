@@ -49,6 +49,10 @@ public class NativoPrebidRenderer: NSObject, PrebidMobilePluginRenderer, Display
         displayView.interactionDelegate = interactionDelegate
         displayView.loadingDelegate = self
         
+        // Cache debug mraid.js
+//        let jsLibManager = PrebidJSLibraryManager.shared
+//        PrebidJSLibraryManager.shared.saveLibrary(with: jsLibManager.mraidLibrary.name, contents: mraidDebugScript)
+        
         return displayView
     }
     
