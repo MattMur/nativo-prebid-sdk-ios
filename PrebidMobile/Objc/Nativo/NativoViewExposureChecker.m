@@ -31,6 +31,9 @@
 @property (nonatomic, assign, readwrite) CGRect clippedRect;
 @property (nonatomic, nonnull, strong, readonly) NSMutableArray<NSValue *> *obstructions; // [CGRect]
 
+// Cache for UIColor alpha lookups
+@property (nonatomic, strong, nullable) NSMapTable<UIColor *, NSNumber *> *colorAlphaCache;
+
 // KVO
 @property (nonatomic, weak, nullable) UIScrollView *observedScrollView;
 @property (nonatomic, strong, nullable) NSTimer *attachPollTimer;
@@ -46,17 +49,6 @@
     id<PBMViewExposure> _exposure;
 }
 
-- (instancetype)initWithView:(UIView *)view {
-    if (!(self = [super initWithView:view])) {
-        return nil;
-    }
-    _testedView = view;
-    _obstructions = [[NSMutableArray alloc] init];
-    _onExposureChange = nil;
-    _observingKVO = NO;
-    return self;
-}
-
 - (instancetype)initWithView:(UIView *)view onExposureChange:(NativoExposureChangeHandler)onExposureChange {
     if (!(self = [super initWithView:view])) {
         return nil;
@@ -65,14 +57,17 @@
     _obstructions = [[NSMutableArray alloc] init];
     _onExposureChange = [onExposureChange copy];
     _observingKVO = NO;
+    _colorAlphaCache = [NSMapTable mapTableWithKeyOptions:NSPointerFunctionsOpaqueMemory | NSPointerFunctionsObjectPointerPersonality
+                                             valueOptions:NSPointerFunctionsStrongMemory];
     [self beginAttachPollingIfNeededAndSetupObservation];
     return self;
 }
 
 - (void)dealloc {
     [self teardownObservation];
-    [self.attachPollTimer invalidate];
-    self.attachPollTimer = nil;
+    [_attachPollTimer invalidate];
+    _attachPollTimer = nil;
+    [_colorAlphaCache removeAllObjects];
 }
 
 #pragma mark - Observation setup
@@ -266,18 +261,26 @@ static const CGFloat kAlphaEpsilon = 0.01;
 // Extract alpha from UIColor or return 0 if nil
 - (CGFloat)alphaForUIColor:(UIColor *)color {
     if (!color) { return 0.0; }
-    CGFloat a = 0;
+    NSNumber *cached = [self.colorAlphaCache objectForKey:color];
+    if (cached) {
+        return cached.doubleValue;
+    }
+    CGFloat a = 1.0;
     if ([color respondsToSelector:@selector(getRed:green:blue:alpha:)]) {
         CGFloat r, g, b;
         if ([color getRed:&r green:&g blue:&b alpha:&a]) {
+            [self.colorAlphaCache setObject:@(a) forKey:color];
             return a;
         }
     }
     CGColorRef cg = color.CGColor;
     if (cg) {
-        return CGColorGetAlpha(cg);
+        a = CGColorGetAlpha(cg);
+        [self.colorAlphaCache setObject:@(a) forKey:color];
+        return a;
     }
-    return 1.0;
+    [self.colorAlphaCache setObject:@(a) forKey:color];
+    return a;
 }
 
 // Heuristically determine whether the view draws non-transparent content in its bounds
