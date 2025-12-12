@@ -14,21 +14,37 @@
  */
 
 #import "NativoViewExposureChecker.h"
+#import "NativoUtils.h"
 
 #ifdef DEBUG
     #import "Prebid+TestExtension.h"
 #endif
 #import "SwiftImport.h"
 
+/**
+ Modified from PBMViewExposureChecker to support scroll based tracking instead of timer based polling
+ Also fixes issue where tracking would stop during user touch
+ */
 @interface NativoViewExposureChecker()
 
 @property (nonatomic, nullable, weak, readonly) UIView *testedView;
 @property (nonatomic, assign, readwrite) CGRect clippedRect;
 @property (nonatomic, nonnull, strong, readonly) NSMutableArray<NSValue *> *obstructions; // [CGRect]
 
+// KVO
+@property (nonatomic, weak, nullable) UIScrollView *observedScrollView;
+@property (nonatomic, strong, nullable) NSTimer *attachPollTimer;
+@property (nonatomic, strong, nullable) Debouncable trackScrollDebounce;
+@property (nonatomic, assign) BOOL observingKVO;
+
+// Callback
+@property (nonatomic, copy, nullable) NativoExposureChangeHandler onExposureChange;
+
 @end
 
-@implementation NativoViewExposureChecker
+@implementation NativoViewExposureChecker {
+    id<PBMViewExposure> _exposure;
+}
 
 - (instancetype)initWithView:(UIView *)view {
     if (!(self = [super initWithView:view])) {
@@ -36,10 +52,119 @@
     }
     _testedView = view;
     _obstructions = [[NSMutableArray alloc] init];
+    _onExposureChange = nil;
+    _observingKVO = NO;
     return self;
 }
 
+- (instancetype)initWithView:(UIView *)view onExposureChange:(NativoExposureChangeHandler)onExposureChange {
+    if (!(self = [super initWithView:view])) {
+        return nil;
+    }
+    _testedView = view;
+    _obstructions = [[NSMutableArray alloc] init];
+    _onExposureChange = [onExposureChange copy];
+    _observingKVO = NO;
+    [self beginAttachPollingIfNeededAndSetupObservation];
+    return self;
+}
+
+- (void)dealloc {
+    [self teardownObservation];
+    [self.attachPollTimer invalidate];
+    self.attachPollTimer = nil;
+}
+
+#pragma mark - Observation setup
+
+- (void)beginAttachPollingIfNeededAndSetupObservation {
+    if ([self isOnForeground]) {
+        [self setupScrollObserving];
+    } else {
+        // If not attached/foreground yet, poll every 100ms until it is.
+        __weak typeof(self) weakSelf = self;
+        self.attachPollTimer = [NSTimer scheduledTimerWithTimeInterval:0.1 repeats:YES block:^(__unused NSTimer * _Nonnull timer) {
+            __strong typeof(weakSelf) self = weakSelf;
+            if (!self) { return; }
+            if ([self isOnForeground]) {
+                [self.attachPollTimer invalidate];
+                self.attachPollTimer = nil;
+                [self setupScrollObserving];
+            }
+        }];
+    }
+}
+
+- (void)setupScrollObserving {
+    if (self.observingKVO) {
+        return;
+    }
+    // Find parent container and ensure it is an active scroll view
+    UIView *container = [self getParentContainerForView:self.testedView];
+    if (container && [self isActiveScrollView:container]) {
+        UIScrollView *scrollView = (UIScrollView *)container;
+        self.observedScrollView = scrollView;
+        // Add KVO
+        @try {
+            [scrollView addObserver:self forKeyPath:@"contentOffset" options:NSKeyValueObservingOptionNew context:NULL];
+            self.observingKVO = YES;
+        } @catch (__unused NSException *exception) {
+            self.observingKVO = NO;
+        }
+        
+        // Setup debouncer and calculation
+        __weak typeof(self) weakSelf = self;
+        self.trackScrollDebounce = [NativoUtils debounceAction:^(id _Nullable param) {
+            __strong typeof(weakSelf) self = weakSelf;
+            if (!self) { return; }
+            id<PBMViewExposure> exposure = [self calculateExposure];
+            if (exposure && self.onExposureChange) {
+                self.onExposureChange(exposure, nil);
+            }
+        } withInterval:0.15f];
+    } else {
+        NSError *error = [PBMError errorWithDescription:@"Failed to find UIScrollView parent."];
+        if (self.onExposureChange) {
+            self.onExposureChange([PBMFactory.ViewExposureType zeroExposure], error);
+        }
+    }
+}
+
+- (void)teardownObservation {
+    if (self.observingKVO && self.observedScrollView) {
+        @try {
+            [self.observedScrollView removeObserver:self forKeyPath:@"contentOffset"];
+        } @catch (__unused NSException *exception) {
+        }
+    }
+    self.observingKVO = NO;
+    self.observedScrollView = nil;
+}
+
+#pragma mark - KVO
+
+- (void)observeValueForKeyPath:(NSString *)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary<NSKeyValueChangeKey,id> *)change
+                       context:(void *)context
+{
+    if ([keyPath isEqualToString:@"contentOffset"] && object == self.observedScrollView) {
+        self.trackScrollDebounce(change[keyPath]);
+        return;
+    }
+    [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+}
+
+#pragma mark - Public exposure getter
+
+// Backwards compatibility computed property
 - (id<PBMViewExposure>)exposure {
+    return [self calculateExposure];
+}
+
+#pragma mark - Core calculation
+
+- (id<PBMViewExposure>)calculateExposure {
     self.clippedRect = self.testedView.bounds;
     [self.obstructions removeAllObjects];
         
@@ -91,6 +216,23 @@
         return YES;
     }
 }
+
+- (BOOL)isActiveScrollView:(UIView *)view {
+    return [view isKindOfClass:[UIScrollView class]] && view.isUserInteractionEnabled;
+}
+
+- (UIView *)getParentContainerForView:(UIView *)view {
+    if (!view) { return nil; }
+    UIView *container = view;
+    while (container.superview != nil
+           && ![container.superview isKindOfClass:[UIWindow class]]
+           && ![self isActiveScrollView:container])
+    {
+        container = container.superview;
+    }
+    return container;
+}
+
 
 // Use a small epsilon to treat nearly-transparent as transparent
 static const CGFloat kAlphaEpsilon = 0.01;
@@ -265,19 +407,12 @@ static const CGFloat kAlphaEpsilon = 0.01;
     // If the view contributes opaque content, add its intersecting rect as an obstruction
     if ([self viewHasOpaqueVisualContent:view]) {
         [self.obstructions addObject:@(intersection)];
-        // If this view clipsToBounds, children outside its bounds cannot add more; we can still traverse
-        // inside if we want subviews that extend beyond parent but are clipped anyway; however, adding
-        // them won't change obstruction since we've already added full intersection. So we can exit early.
         if (view.clipsToBounds) {
             return;
         }
-        // Else, its subviews might extend beyond and cause more obstruction; continue traversal.
     }
     
     // Recurse into children
-    // Decide the clip to pass to children:
-    // - If parent clips, use intersection (children cannot draw outside)
-    // - If parent doesn't clip, we can pass the existing current clip (children may extend beyond parent)
     CGRect nextClip = view.clipsToBounds ? intersection : currentClipInTestedCoords;
     for (UIView *subView in view.subviews) {
         [self collectObstructionsFrom:subView withClip:nextClip];

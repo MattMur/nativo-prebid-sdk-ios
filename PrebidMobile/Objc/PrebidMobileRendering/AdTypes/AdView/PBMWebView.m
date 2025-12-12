@@ -33,6 +33,7 @@
 #import "PBMWebView+Internal.h"
 
 #import "SwiftImport.h"
+#import "NativoViewExposureChecker.h"
 
 // If remote debugging via Safari, delay the html injection until the Safari instance can connect
 #define REMOTE_DEBUGGING 0
@@ -59,6 +60,7 @@ static NSString * const KeyPathOutputVolume = @"outputVolume";
 
 // viewability polling
 @property (nonatomic, strong, nullable) id<PBMCreativeViewabilityTracker> viewabilityTracker;
+@property (nonatomic, strong, nullable) NativoViewExposureChecker *nativoExposureChecker;
 
 // the last frame sent to an ad via onSizeChange
 @property (nonatomic, assign) CGRect mraidLastSentFrame;
@@ -171,6 +173,8 @@ static NSString * const KeyPathOutputVolume = @"outputVolume";
     if (self.isVolumeObserverSetup) {
         [[AVAudioSession sharedInstance] removeObserver:self forKeyPath:KeyPathOutputVolume];
     }
+    self.nativoExposureChecker = nil;
+    self.viewabilityTracker = nil;
 }
 
 #pragma mark - API
@@ -607,7 +611,7 @@ static PBMError *extracted(NSString *errorMessage) {
     BOOL isLocked = [self isOrientationLockedWithViewController:viewController];
     [self MRAID_updateCurrentAppOrientationIsLocked:isLocked];
     
-    [self pollForViewability];
+    [self observeScrollForViewability];
     [self setupVolumeObserver];
 }
 
@@ -691,6 +695,13 @@ static PBMError *extracted(NSString *errorMessage) {
     //these changes were fired by a transition default => expened, default => resize ....
     if (self.viewabilityTracker != nil && self.exposureDelegate != nil && [self.exposureDelegate shouldCheckExposure]) {
         [self.viewabilityTracker checkExposureWithForce:YES];
+    }
+    if (self.nativoExposureChecker != nil && self.exposureDelegate != nil && [self.exposureDelegate shouldCheckExposure]) {
+        id<PBMViewExposure> exposureNow = self.nativoExposureChecker.exposure;
+        [self MRAID_onExposureChange:exposureNow];
+        if (self.exposureDelegate != nil) {
+            [self.exposureDelegate webView:self exposureChange:exposureNow];
+        }
     }
 }
 
@@ -848,6 +859,23 @@ static PBMError *extracted(NSString *errorMessage) {
 - (void)MRAID_error:(NSString *)message action:(PBMMRAIDAction)action {
     PBMLogError(@"Action: [%@] generated error with message [%@]", action, message);
     [self evaluateJavaScript:[PBMMRAIDJavascriptCommands onErrorWithMessage:message action: action]];
+}
+
+- (void)observeScrollForViewability {
+    @weakify(self);
+    self.nativoExposureChecker = [[NativoViewExposureChecker alloc] initWithView:self onExposureChange:^(id<PBMViewExposure>  _Nonnull viewExposure, NSError *error) {
+        @strongify(self);
+        if (!self) { return; }
+        if (!error) {
+            [self MRAID_onExposureChange:viewExposure];
+            if (self.exposureDelegate != nil) {
+                [self.exposureDelegate webView:self exposureChange:viewExposure];
+            }
+        } else {
+            // Fallback to original prebid implementation
+            [self pollForViewability];
+        }
+    }];
 }
     
 //Poll every 200 ms for viewability changes.
