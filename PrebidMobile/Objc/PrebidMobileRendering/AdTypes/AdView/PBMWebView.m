@@ -211,18 +211,18 @@ static NSString * const KeyPathOutputVolume = @"outputVolume";
     [self loadContentWithMRAID:injectMraidJs forExpandContent:NO contentLoader:^{
         @strongify(self);
         if (!self) { return; }
-        
-        PBMLogInfo(@"loadHTMLString");
         self.state = PBMWebViewStateLoading;
         
 #if REMOTE_DEBUGGING
         // Delay in order to give time to start Safari remote debugging
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(6 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            PBMLogInfo(@"loadHTMLString");
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+#else
+        dispatch_async(dispatch_get_main_queue(), ^{
 #endif
-        [self.internalWebView loadHTMLString:html baseURL:nil];
-#if REMOTE_DEBUGGING
+            [self.internalWebView loadHTMLString:html baseURL:nil];
+            [self pollForDocumentReadyState];
         });
+#if REMOTE_DEBUGGING
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.delegate webViewReadyToDisplay:self];
         });
@@ -362,7 +362,9 @@ static NSString * const KeyPathOutputVolume = @"outputVolume";
 
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
     PBMLogWhereAmI();
-    [self pollForDocumentReadyState];
+    // Moving this out since document will always be ready at this point
+    // Noticable performance improvements if we call this earlier and load in content sooner
+//    [self pollForDocumentReadyState];
 }
 
 - (void)pollForDocumentReadyState {
@@ -520,7 +522,6 @@ static PBMError *extracted(NSString *errorMessage) {
                 PBMLogError(@"Error calling %@: %@", command, error.localizedDescription);
                 return;
             }
-
             self.mraidState = isForExpandContent ? PBMMRAIDState.expanded : PBMMRAIDState.defaultState;
         }];
     }];
