@@ -117,6 +117,11 @@
                 self.onExposureChange(exposure, nil);
             }
         } withInterval:0.15f];
+        
+        // Perform initial check that doesn't rely on scrolling
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.onExposureChange([self calculateExposure], nil);
+        });
     } else {
         NSError *error = [PBMError errorWithDescription:@"Failed to find UIScrollView parent."];
         if (self.onExposureChange) {
