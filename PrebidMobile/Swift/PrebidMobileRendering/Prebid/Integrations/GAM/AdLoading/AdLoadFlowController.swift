@@ -170,13 +170,7 @@ typealias AdUnitConfigValidationBlock = (_ adUnitConfig: AdUnitConfig, _ renderW
         case .bidRequest, .primaryAdRequest, .loadingDisplayView:
             return // waiting
         case .demandReceived:
-            adLoader?.flowDelegate = self
-            let hasAdServer = !(adLoader?.primaryAdRequester is BannerEventHandlerStandalone)
-            if hasAdServer {
-                requestPrimaryAdServer(bidResponse)
-            } else {
-                bannerEventDelegate?.prebidDidWin()
-            }
+            requestPrimaryAdServer(bidResponse)
         case .readyToDeploy:
             deployPendingViewAndSendSuccessReport()
         }
@@ -255,7 +249,10 @@ typealias AdUnitConfigValidationBlock = (_ adUnitConfig: AdUnitConfig, _ renderW
         adLoader?.flowDelegate = self
 
         DispatchQueue.main.async { [weak self] in
-            self?.adLoader?.primaryAdRequester?.requestAd(with: bidResponse)
+            self?.adLoader?.primaryAdRequester?.requestAd?(
+                withPrebidResponse: bidResponse,
+                nativoResponse: self?.nativoBidResponse
+            )
         }
     }
 
