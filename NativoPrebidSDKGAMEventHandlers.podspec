@@ -1,10 +1,10 @@
 Pod::Spec.new do |s|
 
-  s.name         = "PrebidMobileMAXAdapters"
+  s.name         = "NativoPrebidSDKGAMEventHandlers"
   s.version      = "3.1.1"
-  s.summary      = "The bridge between PrebidMobile SDK and Applovin MAX SDK."
+  s.summary      = "The bridge between NativoPrebidSDK and GMA SDK."
 
-  s.description  = "MAX Adapters manages rendering of Prebid or MAX ads respectively to the winning bid."
+  s.description  = "GAM Event Handlers manages rendering of Prebid or GAM ads respectively to the winning bid."
   s.homepage     = "https://www.prebid.org"
 
 
@@ -29,18 +29,18 @@ Pod::Spec.new do |s|
   s.platform     	= :ios, "12.0"
   s.swift_version 	= '5.0'
   s.source       	= { :git => "https://github.com/prebid/prebid-mobile-ios.git", :tag => "#{s.version}" }
-  s.xcconfig 		= { :LIBRARY_SEARCH_PATHS => '$(inherited)',
-			    :OTHER_CFLAGS => '$(inherited)',
+  s.xcconfig 		= { :LIBRARY_SEARCH_PATHS => '$(inherited)', 
+  			    :OTHER_CFLAGS => '$(inherited)',
 			    :OTHER_LDFLAGS => '$(inherited)',
 			    :HEADER_SEARCH_PATHS => '$(inherited)',
 			    :FRAMEWORK_SEARCH_PATHS => '$(inherited)'
 			  }
 
-  s.source_files = 'EventHandlers/PrebidMobileMAXAdapters/**/*.{h,m,swift}'
+  s.source_files = 'EventHandlers/PrebidMobileGAMEventHandlers/**/*.{h,m,swift}'
   s.static_framework = true
 
-  s.dependency 'PrebidMobile', '3.1.1'
-  s.dependency 'AppLovinSDK'
+  s.dependency 'NativoPrebidSDK', '3.1.1'
+  s.dependency 'Google-Mobile-Ads-SDK', '>= 12.0.0'
 
   s.pod_target_xcconfig = {
     'BUILD_LIBRARY_FOR_DISTRIBUTION' => 'YES'

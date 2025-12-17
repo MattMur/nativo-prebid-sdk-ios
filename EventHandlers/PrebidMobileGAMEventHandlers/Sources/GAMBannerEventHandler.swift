@@ -15,7 +15,7 @@
 
 import Foundation
 import GoogleMobileAds
-import PrebidMobile
+import NativoPrebidSDK
 
 @objcMembers
 public class GAMBannerEventHandler :
@@ -59,6 +59,12 @@ public class GAMBannerEventHandler :
     
     public func trackImpression() {
         proxyBanner?.recordImpression()
+    }
+    
+    public func requestAd(withPrebidResponse prebidResponse: BidResponse?, nativoResponse: BidResponse?) {
+        let prebidPrice = prebidResponse?.winningBid?.price ?? 0.0
+        let nativoPrice = nativoResponse?.winningBid?.price ?? 0.0
+        requestAd(with: nativoPrice >= prebidPrice ? nativoResponse : prebidResponse)
     }
     
     public func requestAd(with bidResponse: BidResponse?) {

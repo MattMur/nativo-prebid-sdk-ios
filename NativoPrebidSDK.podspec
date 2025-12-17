@@ -54,9 +54,12 @@ Pod::Spec.new do |s|
   s.weak_frameworks  = [ 'AdSupport', 'StoreKit', 'WebKit' ]
 
 
-  s.default_subspec = ['core']
+  s.default_subspecs = ['core']
   s.subspec 'core' do |core|
-    core.source_files = ['PrebidMobile/**/*.{h,m,swift}', 'NativoPrebidRenderer/']
+    core.source_files = [
+    'PrebidMobile/**/*.{h,m,swift}',
+    'NativoPrebidRenderer/'
+    ]
     
     core.private_header_files = [
       'PrebidMobile/Objc/PrivateHeaders/*.h'
@@ -64,7 +67,7 @@ Pod::Spec.new do |s|
     core.vendored_frameworks = 'Frameworks/OMSDK_Prebidorg.xcframework'
   end
 
-  # Separate subspec for renderer with PrebidMobile dependency
+  # Separate subspec for standalone renderer with PrebidMobile dependency
   s.subspec 'renderer' do |renderer|
     renderer.source_files = 'NativoPrebidRenderer/'
     renderer.dependency 'PrebidMobile'
