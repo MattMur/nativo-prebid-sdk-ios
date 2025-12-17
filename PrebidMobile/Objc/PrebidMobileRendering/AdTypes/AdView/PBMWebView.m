@@ -332,7 +332,7 @@ static NSString * const KeyPathOutputVolume = @"outputVolume";
     }
 
     //If this is the first URL, allow it.
-    if (self.state == PBMWebViewStateLoading) {
+    if (self.state == PBMWebViewStateLoading || [url.absoluteString isEqual:@"about:blank"]) {
         decisionHandler(WKNavigationActionPolicyAllow);
         return;
     }
@@ -345,6 +345,7 @@ static NSString * const KeyPathOutputVolume = @"outputVolume";
     }
     
     //Prevent malicious auto-clicking
+    // TODO: some cookie-sync urls are trying to fire here. Should they get through?
     if ([self wasRecentlyTapped]) {
         //Open clickthrough
         @weakify(self);
@@ -365,6 +366,7 @@ static NSString * const KeyPathOutputVolume = @"outputVolume";
     // Moving this out since document will always be ready at this point
     // Noticable performance improvements if we call this earlier and load in content sooner
 //    [self pollForDocumentReadyState];
+    self.state = PBMWebViewStateLoaded;
 }
 
 - (void)pollForDocumentReadyState {
@@ -388,7 +390,6 @@ static NSString * const KeyPathOutputVolume = @"outputVolume";
         }
         
         if ([readyState isEqualToString:@"complete"]) {
-            self.state = PBMWebViewStateLoaded;
             self.isPollingForDocumentReady = NO;
 #if REMOTE_DEBUGGING == 0
             [self.delegate webViewReadyToDisplay:self];

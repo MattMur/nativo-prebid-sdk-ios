@@ -249,10 +249,8 @@ typealias AdUnitConfigValidationBlock = (_ adUnitConfig: AdUnitConfig, _ renderW
         adLoader?.flowDelegate = self
 
         DispatchQueue.main.async { [weak self] in
-            self?.adLoader?.primaryAdRequester?.requestAd?(
-                withPrebidResponse: bidResponse,
-                nativoResponse: self?.nativoBidResponse
-            )
+            guard let self, let primaryAdServer = self.adLoader?.primaryAdRequester else { return }
+            primaryAdServer.requestAd?(withPrebidResponse: bidResponse, nativoResponse: self.nativoBidResponse) ??  primaryAdServer.requestAd(with: bidResponse)
         }
     }
 
