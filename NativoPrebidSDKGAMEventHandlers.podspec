@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name         = "NativoPrebidSDKGAMEventHandlers"
-  s.version      = "3.1.1"
+  s.version      = "3.2.0"
   s.summary      = "The bridge between NativoPrebidSDK and GMA SDK."
 
   s.description  = "GAM Event Handlers manages rendering of Prebid or GAM ads respectively to the winning bid."

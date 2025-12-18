@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name         = "NativoPrebidSDK"
-  s.version      = "3.1.1"
+  s.version      = "3.2.0"
   s.summary      = "Nativo's PrebidMobile wrapper is a lightweight framework that integrates directly with Nativo and Prebid Server."
 
   s.description  = <<-DESC

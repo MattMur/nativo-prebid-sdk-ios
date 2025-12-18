@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name         = "NativoPrebidSDKAdMobAdapters"
-  s.version      = "3.1.1"
+  s.version      = "3.2.0"
   s.summary      = "The bridge between NativoPrebidSDK and GMA SDK."
 
   s.description  = "AdMob Adatpers manages rendering of Prebid ads in the case of integration with AdMob as a Primary Ad Server."
