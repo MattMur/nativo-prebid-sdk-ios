@@ -66,7 +66,7 @@ class BannerAdLoader: NSObject, AdLoaderProtocol, DisplayViewLoadingDelegate, Ba
     
     public func reportSuccess(with adObject: AnyObject, adSize: NSValue?) {
         if let size = adSize?.cgSizeValue,
-           let view = adObject as? UIView & PrebidMobileDisplayViewProtocol {
+           let view = adObject as? UIView {
             delegate?.bannerAdLoader(self, loadedAdView: view, adSize: size)
         }
     }
