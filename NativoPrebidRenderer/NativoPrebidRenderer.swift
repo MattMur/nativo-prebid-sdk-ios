@@ -79,12 +79,47 @@ public class NativoPrebidRenderer: NSObject, PrebidMobilePluginRenderer, Display
         // Notify the downstream DisplayViewLoadingDelegate
         self.bannerLoadingDelegate?.displayViewDidLoadAd(displayView)
         
+        // TODO: PR to Prebid for new delegate callback to PluginRenderer for after view gets injected
+        // TODO: PR for fixing ambiguous constraints on DisplayView
         // Forced to briefly wait for Prebid's AdViewManager to finish before PBMWebView gets injected
-        DispatchQueue.main.async {
+        DispatchQueue.main.asyncAfter(deadline: .now() + DispatchTimeInterval.milliseconds(200)) {
+            if let parentView = displayView.superview {
+                // Remove any constraints we don't need
+                let parentContraints = parentView.constraints
+                let widthConstraints = parentContraints.filter({ constraint in
+                    (constraint.firstItem as? UIView) === parentView && constraint.firstAttribute == .width
+                    || (constraint.secondItem as? UIView) === parentView && constraint.secondAttribute == .width
+                })
+                let heightConstraints = parentContraints.filter({ constraint in
+                    (constraint.firstItem as? UIView) === parentView && constraint.firstAttribute == .height
+                    || (constraint.secondItem as? UIView) === parentView && constraint.secondAttribute == .height
+                })
+                NSLayoutConstraint.deactivate(widthConstraints + heightConstraints)
+                
+                // Allow displayView to expand to the full width of its parent
+                if let grandParentView = parentView.superview {
+                    parentView.widthAnchor.constraint(equalTo: grandParentView.widthAnchor).isActive = true
+                    parentView.heightAnchor.constraint(equalTo: grandParentView.heightAnchor).isActive = true
+                }
+                let displayWidth = displayView.widthAnchor.constraint(equalTo: parentView.widthAnchor)
+                let displayHeight = displayView.heightAnchor.constraint(equalTo: parentView.heightAnchor)
+                let displayCenterX = displayView.centerXAnchor.constraint(equalTo:parentView.centerXAnchor)
+                let displayCenterY = displayView.centerYAnchor.constraint(equalTo: parentView.centerYAnchor)
+                displayCenterX.priority = .defaultHigh
+                displayCenterY.priority = .defaultHigh
+                NSLayoutConstraint.activate([
+                    displayWidth,
+                    displayHeight,
+                    displayCenterX,
+                    displayCenterY
+                ])
+            }
+            
             // Allow the inner web view to expand to the full width of its parent
             if let pbmWebView = displayView.subviews.first {
                 NSLayoutConstraint.activate([
                     pbmWebView.widthAnchor.constraint(equalTo: displayView.widthAnchor),
+                    pbmWebView.heightAnchor.constraint(equalTo: displayView.heightAnchor)
                 ])
             } else {
                 let error = NSError(
@@ -102,3 +137,4 @@ public class NativoPrebidRenderer: NSObject, PrebidMobilePluginRenderer, Display
         self.bannerLoadingDelegate?.displayView(displayView, didFailWithError: error)
     }
 }
+

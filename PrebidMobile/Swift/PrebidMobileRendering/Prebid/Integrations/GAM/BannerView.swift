@@ -398,6 +398,7 @@ public class BannerView:
         }
     }
     
+    // TODO: GAM requires banners to be fixed size. Why not set Banner view size to parent, and inner DisplayView to hard coded size?
     private func installDeployedViewConstraints(view: UIView) {
         view.translatesAutoresizingMaskIntoConstraints = false
         
