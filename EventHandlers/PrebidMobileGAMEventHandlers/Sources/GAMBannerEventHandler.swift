@@ -40,6 +40,8 @@ public class GAMBannerEventHandler :
     
     let adUnitID: String
     
+    var nativoDidWin: Bool = false
+    
     // MARK: - Public Methods
     
     public init(adUnitID: String, validGADAdSizes: [NSValue]) {
@@ -64,7 +66,16 @@ public class GAMBannerEventHandler :
     public func requestAd(withPrebidResponse prebidResponse: BidResponse?, nativoResponse: BidResponse?) {
         let prebidPrice = prebidResponse?.winningBid?.price ?? 0.0
         let nativoPrice = nativoResponse?.winningBid?.price ?? 0.0
-        requestAd(with: nativoPrice >= prebidPrice ? nativoResponse : prebidResponse)
+        
+        var winningResponse :BidResponse?
+        if (nativoPrice >= prebidPrice) {
+            nativoDidWin = true
+            winningResponse = nativoResponse
+        } else {
+            nativoDidWin = false
+            winningResponse = prebidResponse
+        }
+        requestAd(with: winningResponse)
     }
     
     public func requestAd(with bidResponse: BidResponse?) {
@@ -231,7 +242,11 @@ public class GAMBannerEventHandler :
             
             proxyBanner = banner
             
-            loadingDelegate?.prebidDidWin()
+            if (nativoDidWin) {
+                loadingDelegate?.nativoDidWin()
+            } else {
+                loadingDelegate?.prebidDidWin()
+            }
         }
     }
     
