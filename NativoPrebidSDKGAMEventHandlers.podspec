@@ -39,7 +39,7 @@ Pod::Spec.new do |s|
   s.source_files = 'EventHandlers/PrebidMobileGAMEventHandlers/**/*.{h,m,swift}'
   s.static_framework = true
 
-  s.dependency 'NativoPrebidSDK', '3.1.1'
+  s.dependency 'NativoPrebidSDK', '3.2.0'
   s.dependency 'Google-Mobile-Ads-SDK', '>= 12.0.0'
 
   s.pod_target_xcconfig = {
