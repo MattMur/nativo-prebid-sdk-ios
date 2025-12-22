@@ -2,6 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:PrebidMobile.xcodeproj">
+   </FileRef>
+   <FileRef
       location = "group:EventHandlers/EventHandlers.xcodeproj">
    </FileRef>
    <FileRef

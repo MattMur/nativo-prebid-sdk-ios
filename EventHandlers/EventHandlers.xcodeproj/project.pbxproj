@@ -26,7 +26,6 @@
 		5B6967802642A56A0042372E /* PrebidMobileGAMEventHandlers.h in Headers */ = {isa = PBXBuildFile; fileRef = 5B69677F2642A56A0042372E /* PrebidMobileGAMEventHandlers.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5B7B133F26455C9600EBF42A /* GADCustomNativeAdWrapperTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B7B133E26455C9600EBF42A /* GADCustomNativeAdWrapperTest.swift */; };
 		5B7B134C26455E5400EBF42A /* GADNativeAdWrapperTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B7B134B26455E5400EBF42A /* GADNativeAdWrapperTest.swift */; };
-		5BCCF2102732D1B10046CCFC /* PrebidMobile.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BCCF20F2732D1B10046CCFC /* PrebidMobile.framework */; };
 		5BF8E65B26396DB900341EE4 /* GADRewardedAdWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BF8E65A26396DB900341EE4 /* GADRewardedAdWrapper.swift */; };
 		5BF8E6B7263AC32800341EE4 /* GAMInterstitialEventHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BF8E6B6263AC32800341EE4 /* GAMInterstitialEventHandler.swift */; };
 		5BF8E6C2263AE1B400341EE4 /* GAMInterstitialAdWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BF8E6C1263AE1B400341EE4 /* GAMInterstitialAdWrapper.swift */; };
@@ -40,7 +39,6 @@
 		92221CDD2804A0C3005DF671 /* PrebidMAXMediationAdapter+MAInterstitialAdapter+MARewardedAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92221CDC2804A0C3005DF671 /* PrebidMAXMediationAdapter+MAInterstitialAdapter+MARewardedAdapter.swift */; };
 		92221CE32804B113005DF671 /* MAXMediationInterstitialUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92221CE22804B113005DF671 /* MAXMediationInterstitialUtils.swift */; };
 		92221CE72804BC0B005DF671 /* MAXMediationRewardedlUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92221CE62804BC0B005DF671 /* MAXMediationRewardedlUtils.swift */; };
-		92303E7D27FECEA100AC8E5C /* PrebidMobile.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92303E7C27FECEA100AC8E5C /* PrebidMobile.framework */; };
 		924530852800A948006AB6AF /* MAXMediationBannerUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924530842800A948006AB6AF /* MAXMediationBannerUtils.swift */; };
 		924530892800B86B006AB6AF /* MAXAdaptersError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924530882800B86B006AB6AF /* MAXAdaptersError.swift */; };
 		9245308B2800C34D006AB6AF /* PrebidMAXMediationAdapter+MAAdViewAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9245308A2800C34D006AB6AF /* PrebidMAXMediationAdapter+MAAdViewAdapter.swift */; };
@@ -67,7 +65,6 @@
 		92EB6DE52799FB4700470DEC /* PrebidAdMobNativeAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92EB6DE42799FB4700470DEC /* PrebidAdMobNativeAdapter.swift */; };
 		92F4389E27688E8600FDC950 /* PrebidMobileAdMobAdapters.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92F4389627688E8600FDC950 /* PrebidMobileAdMobAdapters.framework */; };
 		92F438A427688E8600FDC950 /* PrebidMobileAdMobAdapters.h in Headers */ = {isa = PBXBuildFile; fileRef = 92F4389827688E8600FDC950 /* PrebidMobileAdMobAdapters.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		92F438BA276896FF00FDC950 /* PrebidMobile.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92F438B9276896FF00FDC950 /* PrebidMobile.framework */; };
 		C3E45723C24D15415F4FAB0C /* Pods_PrebidMobileGAMEventHandlers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EC52FAF1C12304695E019A4D /* Pods_PrebidMobileGAMEventHandlers.framework */; };
 		D1059C00DE847D8091FB2541 /* Pods_PrebidMobileAdMobAdaptersTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75CB2A536AF6D4E751D46FBE /* Pods_PrebidMobileAdMobAdaptersTests.framework */; };
 		D2FEF30160712DAAB98913EC /* Pods_PrebidMobileMAXAdaptersTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6E3D686EF908BFEAF1DF154 /* Pods_PrebidMobileMAXAdaptersTests.framework */; };
@@ -112,6 +109,7 @@
 		34B64D5C24F7E41600FDD9F4 /* PrebidMobileGAMEventHandlers.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = PrebidMobileGAMEventHandlers.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		34B64D5F24F7E41600FDD9F4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		39183ECBC4E402BC48B3691D /* Pods_PrebidMobileGAMEventHandlersTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PrebidMobileGAMEventHandlersTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		3A46AA372EF5E2D60010B2A6 /* NativoPrebidSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = NativoPrebidSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		42CE6323AC67980202BFDE74 /* Pods-PrebidMobileAdMobAdapters.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PrebidMobileAdMobAdapters.release.xcconfig"; path = "Target Support Files/Pods-PrebidMobileAdMobAdapters/Pods-PrebidMobileAdMobAdapters.release.xcconfig"; sourceTree = "<group>"; };
 		534C61672CB861930026119A /* PrebidAdMobRewardedAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrebidAdMobRewardedAdapter.swift; sourceTree = "<group>"; };
 		53632B23290BC57A00139EF3 /* AdMobGMATests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdMobGMATests.swift; sourceTree = "<group>"; };
@@ -197,7 +195,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5BCCF2102732D1B10046CCFC /* PrebidMobile.framework in Frameworks */,
 				C3E45723C24D15415F4FAB0C /* Pods_PrebidMobileGAMEventHandlers.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -206,7 +203,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				92303E7D27FECEA100AC8E5C /* PrebidMobile.framework in Frameworks */,
 				7B5C067F84362A5A09405CED /* Pods_PrebidMobileMAXAdapters.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -224,7 +220,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				92F438BA276896FF00FDC950 /* PrebidMobile.framework in Frameworks */,
 				8B2137FFC451DE1AE4817851 /* Pods_PrebidMobileAdMobAdapters.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -244,6 +239,7 @@
 		3386E5027DFDA876BC9AC49B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				3A46AA372EF5E2D60010B2A6 /* NativoPrebidSDK.framework */,
 				92303E7C27FECEA100AC8E5C /* PrebidMobile.framework */,
 				92F438B9276896FF00FDC950 /* PrebidMobile.framework */,
 				5BCCF20F2732D1B10046CCFC /* PrebidMobile.framework */,
@@ -720,9 +716,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-PrebidMobileMAXAdaptersTests/Pods-PrebidMobileMAXAdaptersTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-PrebidMobileMAXAdaptersTests/Pods-PrebidMobileMAXAdaptersTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -759,9 +759,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-PrebidMobileAdMobAdapters/Pods-PrebidMobileAdMobAdapters-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-PrebidMobileAdMobAdapters/Pods-PrebidMobileAdMobAdapters-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -776,9 +780,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-PrebidMobileAdMobAdaptersTests/Pods-PrebidMobileAdMobAdaptersTests-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-PrebidMobileAdMobAdaptersTests/Pods-PrebidMobileAdMobAdaptersTests-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -903,9 +911,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-PrebidMobileGAMEventHandlers/Pods-PrebidMobileGAMEventHandlers-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-PrebidMobileGAMEventHandlers/Pods-PrebidMobileGAMEventHandlers-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -920,9 +932,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-PrebidMobileGAMEventHandlersTests/Pods-PrebidMobileGAMEventHandlersTests-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-PrebidMobileGAMEventHandlersTests/Pods-PrebidMobileGAMEventHandlersTests-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
