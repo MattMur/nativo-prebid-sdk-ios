@@ -17,8 +17,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "92F4389C27688E8600FDC950"
-               BuildableName = "PrebidMobileAdMobAdaptersTests.xctest"
-               BlueprintName = "PrebidMobileAdMobAdaptersTests"
+               BuildableName = "NativoPrebidSDKAdMobAdaptersTests.xctest"
+               BlueprintName = "NativoPrebidSDKAdMobAdaptersTests"
                ReferencedContainer = "container:EventHandlers.xcodeproj">
             </BuildableReference>
          </TestableReference>

@@ -16,8 +16,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "34B64D5B24F7E41600FDD9F4"
-               BuildableName = "PrebidMobileGAMEventHandlers.framework"
-               BlueprintName = "PrebidMobileGAMEventHandlers"
+               BuildableName = "NativoPrebidSDKGAMEventHandlers.framework"
+               BlueprintName = "NativoPrebidSDKGAMEventHandlers"
                ReferencedContainer = "container:EventHandlers.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -51,8 +51,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "34B64D5B24F7E41600FDD9F4"
-            BuildableName = "PrebidMobileGAMEventHandlers.framework"
-            BlueprintName = "PrebidMobileGAMEventHandlers"
+            BuildableName = "NativoPrebidSDKGAMEventHandlers.framework"
+            BlueprintName = "NativoPrebidSDKGAMEventHandlers"
             ReferencedContainer = "container:EventHandlers.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
